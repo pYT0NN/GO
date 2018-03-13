@@ -91,7 +91,7 @@ public int freiSingle(int zeile, int spalte) //zieht freiheiten durch gegn. Stei
 {
         int freiheiten = 4;
         int x = 0;
-
+        //updatet git?
         if(play) x = -1; //abhaengig davon wer dran ist
         else x = 1;
         int y = x * (-1);
