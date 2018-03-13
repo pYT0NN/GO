@@ -66,7 +66,7 @@ public void move(Scanner sc)
         System.out.println();
 
 
-        if(play) brett[zeile][spalte] = -1; //position zuweisen
+        if(play) brett[zeile][spalte] = -1; //Position abhängig vom Spieler markieren
         else brett[zeile][spalte] = 1;
 }
 
@@ -91,13 +91,13 @@ public int freiSingle(int zeile, int spalte) //zieht freiheiten durch gegn. Stei
 {
         int freiheiten = 4;
         int x = 0;
-        //updatet git?
+
         if(play) x = -1; //abhaengig davon wer dran ist
         else x = 1;
         int y = x * (-1);
 
-        if(zeile == 0 || zeile == 8) freiheiten -= 1; //Abzug fuer Brettkante
-        if(spalte == 0 || spalte == 8) freiheiten -= 1;
+        if(zeile == 0 || zeile == n-1) freiheiten -= 1; //Abzug fuer Brettkante
+        if(spalte == 0 || spalte == n-1) freiheiten -= 1;
 
         if(brett[zeile][spalte] == x) //abzug fuer umliegende gegn. Steine
         {
@@ -144,7 +144,7 @@ public void kick(){
 }
 public void findGroup(int i, int j){
         int key = brett[i][j];
-        group[i][j] = true; //jedes feld rekusriv auf group markieren was teil der gruppe ist
+        group[i][j] = true; //jedes feld rekursiv auf group markieren was teil der gruppe ist
 
         if(i != 0) {
                 if(brett[i-1][j] == key) con++;
@@ -175,20 +175,20 @@ public void findGroup(int i, int j){
 }
 public int liberties(int zeile, int spalte){
         int points = 0;
-        points += freiSingle(zeile, spalte);
+        points += freiSingle(zeile, spalte); //freiheiten fuer einzelnen stein
         for(int i = 0; i < n; i++) {
                 for(int j = 0; j < n; j++) {
-                        if(i == zeile && j == spalte) break;
-                        if(group[i][j]) {
-                                points += freiSingle(i, j);
+                        if(i == zeile && j == spalte) break; //einzelnen stein nicht doppelt zählen
+                        if(group[i][j]) { // wenn der stein teil der gruppe ist
+                                points += freiSingle(i, j); //addiere die freiheiten zum counter
                         }
                 }
         }
-        points -= con;
-        con = 0;
+        points -= con; //fuer jede verbindung eine freiheit
+        con = 0; //reset des connection counters
         return points;
 }
-public void realkick(){ //kickt alle steine der gruppe
+public void realkick(){ //kickt alle steine der aktuellen gruppe
         for(int i = 0; i < n; i++) {
                 for(int j = 0; j < n; j++) {
                         if(group[i][j]) {
