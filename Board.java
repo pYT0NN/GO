@@ -129,24 +129,24 @@ public int freiSingle(int zeile, int spalte) //zieht freiheiten durch gegn. Stei
 }
 public void kick(){
 
-        for(int t = 0; t < 2; t++) { //fuer jeden spieler einmal
-                int x = 0;
-                if(play) x = -1; //in abhaengigkeit davon wer dran ist
-                else x = 1;
-                int y = x * (-1);
+        //for(int t = 0; t < 2; t++) { //fuer jeden spieler einmal
+        int x = 0;
+        if(play) x = -1;         //in abhaengigkeit davon wer dran ist
+        else x = 1;
+        int y = x * (-1);
 
-                for(int i = 0; i < n; i++) {
-                        for(int j = 0; j < n; j++) {
-                                findGroup(i, j);
-                                if(liberties(i, j) == 0)  { //wenn die stelle keine freiheiten hat
-                                        realkick(); //kick
-                                        reset();  //reset der gruppenauswahl
-                                }
-                                else reset();
+        for(int i = 0; i < n; i++) {
+                for(int j = 0; j < n; j++) {
+                        findGroup(i, j);
+                        if(liberties(i, j) == 0)  {         //wenn die gruppe keine freiheiten hat
+                                realkick();         //kick der gruppe
+                                reset();          //reset der gruppenauswahl
                         }
+                        else reset();
                 }
-                next();
         }
+        //next();
+        //}
 }
 public void findGroup(int i, int j){
         int key = brett[i][j];
@@ -166,16 +166,16 @@ public void findGroup(int i, int j){
         }
 
         if(i != 0) {
-                if(!group[i-1][j]) findGroup(i-1, j); //nach oben
+                if(!group[i-1][j] && brett[i-1][j] == key) findGroup(i-1, j); //nach oben
         }
         if(i > n-1) {
-                if(!group[i+1][j]) findGroup(i+1, j); //nach unten
+                if(!group[i+1][j] && brett[i+1][j] == key) findGroup(i+1, j); //nach unten
         }
         if(j != 0) {
-                if(!group[i][j-1]) findGroup(i, j-1); //nach links
+                if(!group[i][j-1] && brett[i][j-1] == key) findGroup(i, j-1); //nach links
         }
         if(j < n-1) {
-                if(!group[i][j+1]) findGroup(i, j+1); //nach rechts
+                if(!group[i][j+1] && brett[i][j+1] == key) findGroup(i, j+1); //nach rechts
         }
 
 }
@@ -190,6 +190,7 @@ public int liberties(int zeile, int spalte){
                         }
                 }
         }
+        //if(zeile == 0 && spalte == 0) System.out.println(points);
         points -= con; //fuer jede verbindung eine freiheit
         con = 0; //reset des connection counters
         return points;

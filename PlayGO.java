@@ -22,8 +22,8 @@ public static void main(String[] args)
                 spiel.move(sc);
                 System.out.println();
                 spiel.kick();
-                spiel.next();
                 spiel.draw();
+                spiel.next();
         }
 }
 }
