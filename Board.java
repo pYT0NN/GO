@@ -3,7 +3,7 @@ import java.lang.*;
 import java.io.*;
 public class Board
 {
-int[][] brett; //Spielbret
+int[][] brett; //Spielbrett
 boolean[][] group; //Poisitionen der Steine einer Gruppe
 boolean play = false; //Aktueller Spieler
 int n; //Spielbrett width
@@ -72,17 +72,23 @@ public void move(Scanner sc)
 
 public void draw()
 {
+        for(int i = 0; i < n; i++) {
+                System.out.print(" _");
+        }
+        System.out.println();
         for(int i = 0; i < n; i++)
         {
                 for(int j = 0; j < n; j++)
                 {
-
                         if(brett[i][j] == 0) System.out.print("| ");
                         if(brett[i][j] == 1) System.out.print("|o");
                         if(brett[i][j] == -1) System.out.print("|*");
                         if(j+1 == n) System.out.print("|");
                 }
                 System.out.println();
+        }
+        for(int i = 0; i < n; i++) {
+                System.out.print(" ¯");
         }
         System.out.println();
 }
