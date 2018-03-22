@@ -4,7 +4,6 @@ import java.io.*;
 public class Board
 {
 Stone[][] brett; //Spielbrett
-boolean[][] group; //Poisitionen der Steine einer Gruppe
 boolean white = false; //Aktueller Spieler
 int n; //Spielbrett width
 
@@ -12,7 +11,6 @@ public Board(int n)
 {
         this.n = n;
         this.brett = new Stone[n][n];
-        this.group = new boolean[n][n];
 }
 
 public void move(Scanner sc)
@@ -128,7 +126,11 @@ public void freiSingle(int i, int j) //subtrahiert freiheiten fuer kanten und ge
                 if(brett[i][j+1] != null && brett[i][j+1].isWhite() == !steinFarbe) freiheiten -= 1;
         }
 
+
         brett[i][j].setFreiheit(freiheiten);
+
+        // if(i == 0 && j == 0) System.out.println("0,0 freiSingle = " +   brett[i][j].getFreiheit());
+        // if(i == 0 && j == 1) System.out.println("0,1 freiSingle = " +   brett[i][j].getFreiheit());
 }
 
 public void findGroup(int i, int j){ //gruppe finden und jedem stein die anzahl der verbindungen zuweisen
@@ -136,20 +138,21 @@ public void findGroup(int i, int j){ //gruppe finden und jedem stein die anzahl 
         if(brett[i][j] != null) {
                 brett[i][j].mark(); //jeden Stein auf markieren setzen der teil der grupe ist
                 boolean steinFarbe = brett[i][j].isWhite();
-                freiSingle(i, j);
+                int con = 0;
 
                 if(i != 0) { //Anzahl der Verbindungen zu anderen gleichen Steinen finden
-                        if(brett[i-1][j] != null && brett[i-1][j].isWhite() == steinFarbe) brett[i][j].addCon(1);
+                        if(brett[i-1][j] != null && brett[i-1][j].isWhite() == steinFarbe) con++;
                 }
                 if(i > n-1) {
-                        if(brett[i+1][j] != null && brett[i+1][j].isWhite() == steinFarbe) brett[i][j].addCon(1);
+                        if(brett[i+1][j] != null && brett[i+1][j].isWhite() == steinFarbe) con++;
                 }
                 if(j != 0) {
-                        if(brett[i][j-1] != null && brett[i][j-1].isWhite() == steinFarbe) brett[i][j].addCon(1);
+                        if(brett[i][j-1] != null && brett[i][j-1].isWhite() == steinFarbe) con++;
                 }
                 if(j < n-1) {
-                        if(brett[i][j+1] != null && brett[i][j+1].isWhite() == steinFarbe) brett[i][j].addCon(1);
+                        if(brett[i][j+1] != null && brett[i][j+1].isWhite() == steinFarbe) con++;
                 }
+                brett[i][j].setCon(con);
 
                 //rekursiv die verbindungen fuer anliegende steine zaehlen und sie als teil der gruppe markieren
                 if(i != 0) { //nach oben
@@ -173,6 +176,7 @@ public int freiGroup(int zeile, int spalte){
         for(int i = 0; i < n; i++) {
                 for(int j = 0; j < n; j++) {
                         if(brett[i][j] != null && brett[i][j].group) {
+                                freiSingle(i, j);
                                 points += brett[i][j].getFreiheit();
                                 con += brett[i][j].getCon();
                                 groupSize++;
@@ -182,8 +186,11 @@ public int freiGroup(int zeile, int spalte){
         if(groupSize > 1) {
                 points -= con; //Freiheiten der gesamten Gruppe minus deren Verbindungen
         }
-        if(zeile == 0 && spalte == 0) System.out.println("0,0 frei = " + points);
-        if(zeile == 0 && spalte == 1) System.out.println("0,1 frei = " + points);
+        // if(zeile == 0 && spalte == 0) System.out.println("0,0 freiGroup = " + points);
+        // if(zeile == 0 && spalte == 1) System.out.println("0,1 freiGroup = " + points);
+        // if(brett[0][0] != null && brett[0][0].group) System.out.println("0, 0  ist markiert");
+        // if(brett[0][1] != null && brett[0][1].group) System.out.println("0, 1 ist markiert");
+
         return points;
 }
 
