@@ -30,6 +30,9 @@ public int getCon(){
 public void addCon(int x){
 								this.con += x;
 }
+public void setCon(int x){
+								this.con = x;
+}
 public void mark(){
 								this.group = true;
 }
