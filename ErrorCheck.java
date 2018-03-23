@@ -4,20 +4,13 @@ import java.io.*;
 public class Board
 {
 Stone[][] brett; //Spielbrett
-boolean[][] egroup; //Als Gruppenmarkierung der Teritory Felder
-boolean[][] used; //Bereits gezählte Felder
 boolean white = false; //Aktueller Spieler
 int n; //Spielbrett width
-int pointsW = 0; //Punkte white
-int pointsB = 0; //Punkte black
 
-
-public Board(int n) //Übergabe der Spielbrettgröße und erzeugen des Boards
+public Board(int n)
 {
         this.n = n;
         this.brett = new Stone[n][n];
-        this.egroup = new boolean[n][n];
-        this.used = new boolean[n][n];
 }
 
 public void move(Scanner sc)
@@ -74,19 +67,12 @@ public void move(Scanner sc)
 
 public void draw()
 {
-        System.out.print(" ");
-        for(int i = 0; i < n; i++) {
-                System.out.print(" " + i);
-        }
-        System.out.println();
-        System.out.print(" ");
         for(int i = 0; i < n; i++) {
                 System.out.print(" _");
         }
         System.out.println();
         for(int i = 0; i < n; i++)
         {
-                System.out.print(i);
                 for(int j = 0; j < n; j++)
                 {
                         if(brett[i][j] == null) System.out.print("| ");
@@ -96,7 +82,6 @@ public void draw()
                 }
                 System.out.println();
         }
-        System.out.print(" ");
         for(int i = 0; i < n; i++) {
                 System.out.print(" ¯");
         }
@@ -140,42 +125,41 @@ public void freiSingle(int i, int j) //subtrahiert freiheiten fuer kanten und ge
         {
                 if(brett[i][j+1] != null && brett[i][j+1].isWhite() == !steinFarbe) freiheiten -= 1;
         }
+
+
         brett[i][j].setFreiheit(freiheiten);
 
-        //Errorcheck
-        // if(i == 5 && j == 4) System.out.println("5,4 freiSingle = " +   brett[i][j].getFreiheit());
-        // if(i == 5 && j == 5) System.out.println("5,5 freiSingle = " +   brett[i][j].getFreiheit());
-}
-public void findCon(int i, int j){
-        boolean steinFarbe = brett[i][j].isWhite();
-        int con = 0;
 
-        if(i != 0) {         //Anzahl der Verbindungen zu anderen gleichen Steinen finden
-                if(brett[i-1][j] != null && brett[i-1][j].isWhite() == steinFarbe) con++;
-        }
-        if(i < n-1) {
-                if(brett[i+1][j] != null && brett[i+1][j].isWhite() == steinFarbe) con++;
-        }
-        if(j != 0) {
-                if(brett[i][j-1] != null && brett[i][j-1].isWhite() == steinFarbe) con++;
-        }
-        if(j < n-1) {
-                if(brett[i][j+1] != null && brett[i][j+1].isWhite() == steinFarbe) con++;
-        }
-        brett[i][j].setCon(con);
+
+
 }
+
 public void findGroup(int i, int j){ //gruppe finden und jedem stein die anzahl der verbindungen zuweisen
 
         if(brett[i][j] != null) {
-                findCon(i, j);
                 brett[i][j].mark(); //jeden Stein auf markieren setzen der teil der grupe ist
                 boolean steinFarbe = brett[i][j].isWhite();
+                int con = 0;
 
-                //rekursiv anliegende steine als teil der gruppe markieren
+                if(i != 0) { //Anzahl der Verbindungen zu anderen gleichen Steinen finden
+                        if(brett[i-1][j] != null && brett[i-1][j].isWhite() == steinFarbe) con++;
+                }
+                if(i > n-1) {
+                        if(brett[i+1][j] != null && brett[i+1][j].isWhite() == steinFarbe) con++;
+                }
+                if(j != 0) {
+                        if(brett[i][j-1] != null && brett[i][j-1].isWhite() == steinFarbe) con++;
+                }
+                if(j < n-1) {
+                        if(brett[i][j+1] != null && brett[i][j+1].isWhite() == steinFarbe) con++;
+                }
+                brett[i][j].setCon(con);
+
+                //rekursiv die verbindungen fuer anliegende steine zaehlen und sie als teil der gruppe markieren
                 if(i != 0) { //nach oben
                         if(brett[i-1][j] != null && !brett[i-1][j].group && brett[i-1][j].isWhite() == steinFarbe) findGroup(i-1, j);
                 }
-                if(i < n-1) { //nach unten
+                if(i > n-1) { //nach unten
                         if(brett[i+1][j] != null && !brett[i+1][j].group && brett[i+1][j].isWhite() == steinFarbe) findGroup(i+1, j);
                 }
                 if(j != 0) { //nach links
@@ -186,7 +170,6 @@ public void findGroup(int i, int j){ //gruppe finden und jedem stein die anzahl 
                 }
         }
 }
-
 public int freiGroup(int zeile, int spalte){
         int points = 0;
         int con = 0;
@@ -201,48 +184,28 @@ public int freiGroup(int zeile, int spalte){
                         }
                 }
         }
+        //if(groupSize > 1) {
         points -= con;         //Freiheiten der gesamten Gruppe minus deren Verbindungen
+        //}
 
         //Error Check
-        // if(zeile == 4 && spalte == 4) System.out.println("4,4 freiGroup = " + points);
-        // if(zeile == 4 && spalte == 5) System.out.println("4,5 freiGroup = " + points);
+        if(zeile == 4 && spalte == 4) System.out.println("4,4 freiGroup = " + points);
+        if(zeile == 4 && spalte == 5) System.out.println("4,5 freiGroup = " + points);
+        // if(brett[0][0] != null && brett[0][0].group) System.out.println("0, 0  ist markiert");
+        // if(brett[0][1] != null && brett[0][1].group) System.out.println("0, 1 ist markiert");
 
         return points;
-}
-
-public void Teritory(int i, int j){ //Gruppe der leeren Steine finden und markieren
-
-        if(brett[i][j] == null) {
-                egroup[i][j] == true; //jedes Teritory Feld markieren was der umschlossenen Gruppe ist
-
-                //rekursiv anliegende Felder als Teil der Gruppe markieren
-                if(i != 0) { //nach oben
-                        if(brett[i-1][j] == null && !egroup[i-1][j]) Teritory(i-1, j);
-                }
-                if(i < n-1) { //nach unten
-                        if(brett[i+1][j] == null && !egroup[i+1][j]) Teritory(i+1, j);
-                }
-                if(j != 0) { //nach links
-                        if(brett[i][j-1] == null && !egroup[i][j-1]) Teritory(i, j-1);
-                }
-                if(j < n-1) { //nach rechts
-                        if(brett[i][j+1] != null && !egroup[i][j+1]) Teritory(i, j+1);
-                }
-        }
 }
 
 public void realkick(){ //kickt alle steine der aktuellen gruppe
         for(int i = 0; i < n; i++) {
                 for(int j = 0; j < n; j++) {
                         if(brett[i][j] != null && brett[i][j].group) {
-                                if(brett[i][j].isWhite()) pointsB++;
-                                else pointsW++;
                                 remove(i, j);
                         }
                 }
         }
 }
-
 
 public void reset(){
         for(int i = 0; i < n; i++) { //Reset der Gruppe

@@ -13,6 +13,7 @@ public static void main(String[] args)
                 System.out.println("Ungültige Größe");
                 n = sc.nextInt();
         }
+        sc.nextLine();
         Board spiel = new Board(n);
         System.out.println();
 
