@@ -10,6 +10,7 @@ boolean white = false; //Aktueller Spieler
 int n; //Spielbrett width
 int pointsW = 0; //Punkte white
 int pointsB = 0; //Punkte black
+Scanner sc;
 
 
 public Board(int n) //Übergabe der Spielbrettgröße und erzeugen des Boards
@@ -22,86 +23,25 @@ public Board(int n) //Übergabe der Spielbrettgröße und erzeugen des Boards
 
 public void move(Scanner sc)
 {
+        this.sc = sc;
         if(white) System.out.println("Weiß ist am Zug");
         else System.out.println("Schwarz ist am Zug");
+
         System.out.println("Zeile?");
         int zeile = sc.nextInt();
-        while(zeile >= n || zeile < 0) //Eingabe check
-        {
-                System.out.println("Ungültiger Move");
-                System.out.println("Zeile?");
-                zeile = sc.nextInt();
-
-        }
+        zeile = checkZeile(zeile); //Überprüft auf Array out of Bound exception
         System.out.println("Spalte?");
         int spalte = sc.nextInt();
-        while(spalte >= n || spalte < 0)
-        {
-                System.out.println("Ungültiger Move");
-                System.out.println("Spalte?");
-                spalte = sc.nextInt();
-
-        }
-        while(brett[zeile][spalte] != null) //check ob dort bereits ein stein liegt
-        {
-                System.out.println("Ungültiger Move");
-                System.out.println("Zeile?");
-                zeile = sc.nextInt();
-
-                while(zeile >= n || zeile < 0)
-                {
-                        System.out.println("Ungültiger Move");
-                        System.out.println("Zeile?");
-                        zeile = sc.nextInt();
-
-                }
-                System.out.println("Ungültiger Move");
-                System.out.println("Spalte?");
-                spalte = sc.nextInt();
-                while(spalte >= n || spalte < 0)
-                {
-                        System.out.println("Ungültiger Move");
-                        System.out.println("Spalte?");
-                        spalte = sc.nextInt();
-
-                }
-
-        }
+        spalte = checkSpalte(spalte); //Überprüft auf Array out of Bound exception
+        int[] empty = empty(zeile, spalte); //Check ob dort ein Stein liegt
+        zeile = empty[0];
+        spalte = empty[1];
         System.out.println();
 
         brett[zeile][spalte] = new Stone(white); //Stelle markieren
 }
 
-public void draw()
-{
-        System.out.print(" ");
-        for(int i = 0; i < n; i++) {
-                System.out.print(" " + i);
-        }
-        System.out.println();
-        System.out.print(" ");
-        for(int i = 0; i < n; i++) {
-                System.out.print(" _");
-        }
-        System.out.println();
-        for(int i = 0; i < n; i++)
-        {
-                System.out.print(i);
-                for(int j = 0; j < n; j++)
-                {
-                        if(brett[i][j] == null) System.out.print("| ");
-                        if(brett[i][j] != null && !brett[i][j].isWhite()) System.out.print("|o");
-                        if(brett[i][j] != null && brett[i][j].isWhite()) System.out.print("|*");
-                        if(j+1 == n) System.out.print("|");
-                }
-                System.out.println();
-        }
-        System.out.print(" ");
-        for(int i = 0; i < n; i++) {
-                System.out.print(" ¯");
-        }
-        System.out.println();
-}
+
 
 public void kick(){
         for(int i = 0; i < n; i++) {
@@ -115,63 +55,14 @@ public void kick(){
                 }
         }
 }
-
-public void freiSingle(int i, int j) //subtrahiert freiheiten fuer kanten und gegn. steine
-{
-        int freiheiten = 4;
-        boolean steinFarbe = brett[i][j].isWhite();
-
-        if(i == 0 || i == n-1) freiheiten -= 1; //Abzug fuer Brettkante oben
-        if(j == 0 || j == n-1) freiheiten -= 1;
-
-        if(i != 0) //nach oben
-        {
-                if(brett[i-1][j] != null && brett[i-1][j].isWhite() == !steinFarbe) freiheiten -= 1;
-        }
-        if(i != n-1) //nach unten
-        {
-                if(brett[i+1][j] != null && brett[i+1][j].isWhite() == !steinFarbe) freiheiten -= 1;
-        }
-        if(j != 0) //nach links
-        {
-                if(brett[i][j-1] != null && brett[i][j-1].isWhite() == !steinFarbe) freiheiten -= 1;
-        }
-        if(j != n-1) //nach rechts
-        {
-                if(brett[i][j+1] != null && brett[i][j+1].isWhite() == !steinFarbe) freiheiten -= 1;
-        }
-        brett[i][j].setFreiheit(freiheiten);
-
-        //Errorcheck
-        // if(i == 5 && j == 4) System.out.println("5,4 freiSingle = " +   brett[i][j].getFreiheit());
-        // if(i == 5 && j == 5) System.out.println("5,5 freiSingle = " +   brett[i][j].getFreiheit());
-}
-public void findCon(int i, int j){
-        boolean steinFarbe = brett[i][j].isWhite();
-        int con = 0;
-
-        if(i != 0) {         //Anzahl der Verbindungen zu anderen gleichen Steinen finden
-                if(brett[i-1][j] != null && brett[i-1][j].isWhite() == steinFarbe) con++;
-        }
-        if(i < n-1) {
-                if(brett[i+1][j] != null && brett[i+1][j].isWhite() == steinFarbe) con++;
-        }
-        if(j != 0) {
-                if(brett[i][j-1] != null && brett[i][j-1].isWhite() == steinFarbe) con++;
-        }
-        if(j < n-1) {
-                if(brett[i][j+1] != null && brett[i][j+1].isWhite() == steinFarbe) con++;
-        }
-        brett[i][j].setCon(con);
-}
-public void findGroup(int i, int j){ //gruppe finden und jedem stein die anzahl der verbindungen zuweisen
+public void findGroup(int i, int j){ //Gruppe finden und jedem Stein die anzahl der Verbindungen zuweisen
 
         if(brett[i][j] != null) {
-                findCon(i, j);
-                brett[i][j].mark(); //jeden Stein auf markieren setzen der teil der grupe ist
+                findCon(i, j); //Anzahl der gleiche, angrenzenden Steine zählen
+                brett[i][j].mark(); //jeden Stein als Teil Gruppe markieren
                 boolean steinFarbe = brett[i][j].isWhite();
 
-                //rekursiv anliegende steine als teil der gruppe markieren
+                //rekursiv anliegende Steine als Teil der Gruppe markieren
                 if(i != 0) { //nach oben
                         if(brett[i-1][j] != null && !brett[i-1][j].group && brett[i-1][j].isWhite() == steinFarbe) findGroup(i-1, j);
                 }
@@ -201,11 +92,7 @@ public int freiGroup(int zeile, int spalte){
                         }
                 }
         }
-        points -= con;         //Freiheiten der gesamten Gruppe minus deren Verbindungen
-
-        //Error Check
-        // if(zeile == 4 && spalte == 4) System.out.println("4,4 freiGroup = " + points);
-        // if(zeile == 4 && spalte == 5) System.out.println("4,5 freiGroup = " + points);
+        points -= con;         //Freiheiten der gesamten Gruppe abzüglich deren Verbindungen
 
         return points;
 }
@@ -213,7 +100,7 @@ public int freiGroup(int zeile, int spalte){
 public void Teritory(int i, int j){ //Gruppe der leeren Steine finden und markieren
 
         if(brett[i][j] == null) {
-                egroup[i][j] == true; //jedes Teritory Feld markieren was der umschlossenen Gruppe ist
+                egroup[i][j] = true; //jedes Teritory Feld markieren was der umschlossenen Gruppe ist
 
                 //rekursiv anliegende Felder als Teil der Gruppe markieren
                 if(i != 0) { //nach oben
@@ -242,7 +129,54 @@ public void realkick(){ //kickt alle steine der aktuellen gruppe
                 }
         }
 }
+public void findCon(int i, int j){
+        boolean steinFarbe = brett[i][j].isWhite();
+        int con = 0;
 
+        if(i != 0) {         //Anzahl der Verbindungen zu anderen gleichen Steinen finden
+                if(brett[i-1][j] != null && brett[i-1][j].isWhite() == steinFarbe) con++;
+        }
+        if(i < n-1) {
+                if(brett[i+1][j] != null && brett[i+1][j].isWhite() == steinFarbe) con++;
+        }
+        if(j != 0) {
+                if(brett[i][j-1] != null && brett[i][j-1].isWhite() == steinFarbe) con++;
+        }
+        if(j < n-1) {
+                if(brett[i][j+1] != null && brett[i][j+1].isWhite() == steinFarbe) con++;
+        }
+        brett[i][j].setCon(con);
+}
+public void freiSingle(int i, int j) //subtrahiert Freiheiten für Kanten und anliegende gegn. Steine
+{
+        int freiheiten = 4;
+        boolean steinFarbe = brett[i][j].isWhite();
+
+        if(i == 0 || i == n-1) freiheiten -= 1; //Abzug fuer Brettkante
+        if(j == 0 || j == n-1) freiheiten -= 1;
+
+        if(i != 0) //nach oben
+        {
+                if(brett[i-1][j] != null && brett[i-1][j].isWhite() == !steinFarbe) freiheiten -= 1;
+        }
+        if(i != n-1) //nach unten
+        {
+                if(brett[i+1][j] != null && brett[i+1][j].isWhite() == !steinFarbe) freiheiten -= 1;
+        }
+        if(j != 0) //nach links
+        {
+                if(brett[i][j-1] != null && brett[i][j-1].isWhite() == !steinFarbe) freiheiten -= 1;
+        }
+        if(j != n-1) //nach rechts
+        {
+                if(brett[i][j+1] != null && brett[i][j+1].isWhite() == !steinFarbe) freiheiten -= 1;
+        }
+        brett[i][j].setFreiheit(freiheiten);
+
+        //Errorcheck
+        // if(i == 5 && j == 4) System.out.println("5,4 freiSingle = " +   brett[i][j].getFreiheit());
+        // if(i == 5 && j == 5) System.out.println("5,5 freiSingle = " +   brett[i][j].getFreiheit());
+}
 
 public void reset(){
         for(int i = 0; i < n; i++) { //Reset der Gruppe
@@ -257,5 +191,75 @@ public void remove(int i, int j){
 }
 public void next(){
         white = !white;
+}
+public void draw()
+{
+        System.out.print(" ");
+        for(int i = 0; i < n; i++) { //Nummerierung der Spalten
+                System.out.print(" " + i);
+        }
+        System.out.println();
+        System.out.print(" ");
+        for(int i = 0; i < n; i++) {
+                System.out.print(" _");
+        }
+        System.out.println();
+        for(int i = 0; i < n; i++)
+        {
+                System.out.print(i); //Nummerierung der Zeilen
+                for(int j = 0; j < n; j++)
+                {
+                        if(brett[i][j] == null) System.out.print("| ");
+                        if(brett[i][j] != null && !brett[i][j].isWhite()) System.out.print("|o"); // o für Schwarz
+                        if(brett[i][j] != null && brett[i][j].isWhite()) System.out.print("|*"); // * für Weiß
+                        if(j+1 == n) System.out.print("|");
+                }
+                System.out.println();
+        }
+        System.out.print(" ");
+        for(int i = 0; i < n; i++) {
+                System.out.print(" ¯");
+        }
+        System.out.println();
+}
+public int[] empty(int zeile, int spalte){
+        int[] out = new int[2];
+        while(brett[zeile][spalte] != null) //Check ob dort bereits ein Stein liegt
+        {
+                System.out.println("Ungültiger Move");
+                System.out.println("Zeile?");
+                zeile = sc.nextInt();
+                zeile = checkZeile(zeile);
+
+
+                System.out.println("Ungültiger Move");
+                System.out.println("Spalte?");
+                spalte = sc.nextInt();
+                spalte = checkSpalte(spalte);
+        }
+        out[0] = zeile;
+        out[1] = spalte;
+        return out;
+
+}
+public int checkZeile(int zeile){
+        while(zeile >= n || zeile < 0)
+        {
+                System.out.println("Ungültiger Move");
+                System.out.println("Zeile?");
+                zeile = sc.nextInt();
+
+        }
+        return zeile;
+}
+public int checkSpalte(int spalte){
+        while(spalte >= n || spalte < 0)
+        {
+                System.out.println("Ungültiger Move");
+                System.out.println("Spalte?");
+                spalte = sc.nextInt();
+
+        }
+        return spalte;
 }
 }
