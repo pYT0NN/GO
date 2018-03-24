@@ -27,16 +27,9 @@ public void move(Scanner sc)
         if(white) System.out.println("Weiß ist am Zug");
         else System.out.println("Schwarz ist am Zug");
 
-        System.out.println("Zeile?");
-        int zeile = sc.nextInt();
-        zeile = InCheck.checkZeile(n,zeile, brett, sc); //Überprüft auf Array out of Bound exception
-        System.out.println("Spalte?");
-        int spalte = sc.nextInt();
-        spalte = InCheck.checkSpalte(n, spalte, brett, sc); //Überprüft auf Array out of Bound exception
-        int[] empty = InCheck.empty(n, zeile, spalte, brett, sc); //Check ob dort ein Stein liegt
-        zeile = empty[0];
-        spalte = empty[1];
-        System.out.println();
+        int[] zs = InCheck.getZeileUndSpalte(sc, n, brett);
+        int zeile = zs[0];
+        int spalte = zs[1];
 
         brett[zeile][spalte] = new Stone(white); //Stelle markieren
 }
@@ -186,34 +179,7 @@ public void remove(int i, int j){
 public void next(){
         white = !white;
 }
-public void draw()
-{
-        System.out.print(" ");
-        for(int i = 0; i < n; i++) { //Nummerierung der Spalten
-                System.out.print(" " + i);
-        }
-        System.out.println();
-        System.out.print(" ");
-        for(int i = 0; i < n; i++) {
-                System.out.print(" _");
-        }
-        System.out.println();
-        for(int i = 0; i < n; i++)
-        {
-                System.out.print(i); //Nummerierung der Zeilen
-                for(int j = 0; j < n; j++)
-                {
-                        if(brett[i][j] == null) System.out.print("| ");
-                        if(brett[i][j] != null && !brett[i][j].isWhite()) System.out.print("|o"); // o für Schwarz
-                        if(brett[i][j] != null && brett[i][j].isWhite()) System.out.print("|*"); // * für Weiß
-                        if(j+1 == n) System.out.print("|");
-                }
-                System.out.println();
-        }
-        System.out.print(" ");
-        for(int i = 0; i < n; i++) {
-                System.out.print(" ¯");
-        }
-        System.out.println();
+public void draw(){
+        Out.draw(n, brett);
 }
 }
