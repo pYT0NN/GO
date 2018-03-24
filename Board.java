@@ -10,7 +10,7 @@ boolean white = false; //Aktueller Spieler
 int n; //Spielbrett width
 int pointsW = 0; //Punkte white
 int pointsB = 0; //Punkte black
-Scanner sc;
+Scanner sc; //Zum Einlesen
 
 
 public Board(int n) //Übergabe der Spielbrettgröße und erzeugen des Boards
@@ -29,11 +29,11 @@ public void move(Scanner sc)
 
         System.out.println("Zeile?");
         int zeile = sc.nextInt();
-        zeile = checkZeile(zeile); //Überprüft auf Array out of Bound exception
+        zeile = InCheck.checkZeile(n,zeile, brett, sc); //Überprüft auf Array out of Bound exception
         System.out.println("Spalte?");
         int spalte = sc.nextInt();
-        spalte = checkSpalte(spalte); //Überprüft auf Array out of Bound exception
-        int[] empty = empty(zeile, spalte); //Check ob dort ein Stein liegt
+        spalte = InCheck.checkSpalte(n, spalte, brett, sc); //Überprüft auf Array out of Bound exception
+        int[] empty = InCheck.empty(n, zeile, spalte, brett, sc); //Check ob dort ein Stein liegt
         zeile = empty[0];
         spalte = empty[1];
         System.out.println();
@@ -41,17 +41,16 @@ public void move(Scanner sc)
         brett[zeile][spalte] = new Stone(white); //Stelle markieren
 }
 
-
-
 public void kick(){
+
         for(int i = 0; i < n; i++) {
                 for(int j = 0; j < n; j++) {
                         findGroup(i, j);
-                        if(freiGroup(i, j) == 0)  {         //wenn die gruppe keine freiheiten hat
-                                realkick();         //kick der gruppe
-                                reset();          //reset der gruppenauswahl
+                        if(!lebtGroup())  {         //wenn die Gruppe nicht lebt
+                                realkick();         //kick der Gruppe
+                                resetGroup();       //reset der Gruppenauswahl
                         }
-                        else reset();
+                        else resetGroup();  //ansonsten nur Reset der Gruppenauswahl
                 }
         }
 }
@@ -78,23 +77,22 @@ public void findGroup(int i, int j){ //Gruppe finden und jedem Stein die anzahl 
         }
 }
 
-public int freiGroup(int zeile, int spalte){
+public boolean lebtGroup(){
         int points = 0;
         int con = 0;
-        int groupSize = 0;
         for(int i = 0; i < n; i++) {
                 for(int j = 0; j < n; j++) {
                         if(brett[i][j] != null && brett[i][j].group) {
                                 freiSingle(i, j);
                                 points += brett[i][j].getFreiheit();
                                 con += brett[i][j].getCon();
-                                groupSize++;
                         }
                 }
         }
         points -= con;         //Freiheiten der gesamten Gruppe abzüglich deren Verbindungen
 
-        return points;
+        if(points == 0) return false;
+        else return true;
 }
 
 public void Teritory(int i, int j){ //Gruppe der leeren Steine finden und markieren
@@ -172,13 +170,9 @@ public void freiSingle(int i, int j) //subtrahiert Freiheiten für Kanten und an
                 if(brett[i][j+1] != null && brett[i][j+1].isWhite() == !steinFarbe) freiheiten -= 1;
         }
         brett[i][j].setFreiheit(freiheiten);
-
-        //Errorcheck
-        // if(i == 5 && j == 4) System.out.println("5,4 freiSingle = " +   brett[i][j].getFreiheit());
-        // if(i == 5 && j == 5) System.out.println("5,5 freiSingle = " +   brett[i][j].getFreiheit());
 }
 
-public void reset(){
+public void resetGroup(){
         for(int i = 0; i < n; i++) { //Reset der Gruppe
                 for(int j = 0; j < n; j++) {
                         if(brett[i][j] != null)
@@ -221,45 +215,5 @@ public void draw()
                 System.out.print(" ¯");
         }
         System.out.println();
-}
-public int[] empty(int zeile, int spalte){
-        int[] out = new int[2];
-        while(brett[zeile][spalte] != null) //Check ob dort bereits ein Stein liegt
-        {
-                System.out.println("Ungültiger Move");
-                System.out.println("Zeile?");
-                zeile = sc.nextInt();
-                zeile = checkZeile(zeile);
-
-
-                System.out.println("Ungültiger Move");
-                System.out.println("Spalte?");
-                spalte = sc.nextInt();
-                spalte = checkSpalte(spalte);
-        }
-        out[0] = zeile;
-        out[1] = spalte;
-        return out;
-
-}
-public int checkZeile(int zeile){
-        while(zeile >= n || zeile < 0)
-        {
-                System.out.println("Ungültiger Move");
-                System.out.println("Zeile?");
-                zeile = sc.nextInt();
-
-        }
-        return zeile;
-}
-public int checkSpalte(int spalte){
-        while(spalte >= n || spalte < 0)
-        {
-                System.out.println("Ungültiger Move");
-                System.out.println("Spalte?");
-                spalte = sc.nextInt();
-
-        }
-        return spalte;
 }
 }
