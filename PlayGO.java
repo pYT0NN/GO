@@ -14,14 +14,13 @@ public static void main(String[] args)
                 n = sc.nextInt();
         }
         sc.nextLine();
-        Board spiel = new Board(n);
+        Board spiel = new Board(sc, n);
         System.out.println();
 
 
         for(int i = 0; i < 100; i++)
         {
-                spiel.move(sc);
-                System.out.println();
+                spiel.move();
                 spiel.kick();
                 spiel.draw();
                 spiel.next();
