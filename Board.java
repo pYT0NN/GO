@@ -27,7 +27,7 @@ public void move()
         else System.out.println("Schwarz ist am Zug");
 
         InCheck read = new InCheck(sc, n, brett);
-        int[] zs = read.getZeileUndSpalte(); //Überprüft die Eingabe
+        int[] zs = read.getZeileUndSpalte(); //Überprüft die Eingabe und gibt Zeile x Spalte in einem Array wieder
         int zeile = zs[0];
         int spalte = zs[1];
 
@@ -36,7 +36,7 @@ public void move()
 
 public void kick(){
         Kick temp = new Kick(n, brett);
-        int[] pointsWB = Kick.andReturnPoints(); //Kickt alle Steine die tot sind
+        int[] pointsWB = Kick.andReturnPoints(); //Überprüft of alle Steine leben und kickt Steine ohne Freiheiten
 
         pointsW += pointsWB[0]; //Gibt Weiß Punkte für geschlagene Steine
         pointsB += pointsWB[1]; //Gibt Schwarz Punkte für geschlagene Steine
