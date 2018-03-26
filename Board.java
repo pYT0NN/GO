@@ -42,7 +42,7 @@ public void kick(){
         pointsB += pointsWB[1]; //Gibt Schwarz Punkte für geschlagene Steine
 }
 
-public int[][] count(){ //Zählt Teritorium Punkte
+public void count(){ //Zählt Teritorium Punkte
         Teritory counter = new Teritory(n, brett, used);
         int[] pointsWB = Teritory.pointsWB();
         pointsW += pointsWB[0];

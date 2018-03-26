@@ -17,7 +17,6 @@ public static void main(String[] args)
         Board spiel = new Board(sc, n);
         System.out.println();
 
-
         for(int i = 0; i < 100; i++)
         {
                 spiel.move();
@@ -25,5 +24,8 @@ public static void main(String[] args)
                 spiel.draw();
                 spiel.next();
         }
+        spiel.count();
+        int pointsW = spiel.pointsW;
+        int pointsB = spiel.pointsB;
 }
 }
