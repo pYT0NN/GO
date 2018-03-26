@@ -52,19 +52,19 @@ public static void markZone(int i, int j){   //Gruppe des Teritoriums und seiner
 
                 if(i != 0) {   //nach oben
                         if(brett[i-1][j] == null && !tGroup[i-1][j]) markZone(i-1, j);
-                        else if(brett[i-1][j] != null && !tGroup[i-1][j]) grenze[i-1][j] = true;
+                        else if(brett[i-1][j] != null) grenze[i-1][j] = true;
                 }
                 if(i < n-1) {   //nach unten
                         if(brett[i+1][j] == null && !tGroup[i+1][j]) markZone(i+1, j);
-                        else if(brett[i-1][j] != null && !tGroup[i-1][j]) grenze[i+1][j] = true;
+                        else if(brett[i+1][j] != null) grenze[i+1][j] = true;
                 }
                 if(j != 0) {   //nach links
                         if(brett[i][j-1] == null && !tGroup[i][j-1]) markZone(i, j-1);
-                        else if(brett[i-1][j] != null && !tGroup[i-1][j]) grenze[i][j-1] = true;
+                        else if(brett[i][j-1] != null) grenze[i][j-1] = true;
                 }
                 if(j < n-1) {   //nach rechts
                         if(brett[i][j+1] != null && !tGroup[i][j+1]) markZone(i, j+1);
-                        else if(brett[i-1][j] != null && !tGroup[i-1][j]) grenze[i][j+1] = true;
+                        else if(brett[i][j+1] != null) grenze[i][j+1] = true;
                 }
         }
 }

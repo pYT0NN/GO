@@ -17,7 +17,7 @@ public static void main(String[] args)
         Board spiel = new Board(sc, n);
         System.out.println();
 
-        for(int i = 0; i < 100; i++)
+        for(int i = 0; i < 15; i++)
         {
                 spiel.move();
                 spiel.kick();
@@ -27,5 +27,7 @@ public static void main(String[] args)
         spiel.count();
         int pointsW = spiel.pointsW;
         int pointsB = spiel.pointsB;
+        System.out.println("Weiß Punkte: " + pointsW);
+        System.out.println("Schwarz Punkte: " + pointsB);
 }
 }
