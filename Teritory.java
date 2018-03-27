@@ -30,10 +30,13 @@ public static int[] pointsWB(){
                         markZone(i, j); //Von aktuellem Feld ausgehend eine Gruppe von leeren Feldern finden
                         owner = isZoneWhite();
                         count = count();
-                        reset();
+
 
                         if(owner == 1) pointsW += count;
                         else if(owner == -1) pointsB += count;
+                        else count = 0;
+                        reset();
+                        count = 0;
                 }
         }
         punkteWB[0] = pointsW;
@@ -70,22 +73,36 @@ public static void markZone(int i, int j){   //Gruppe des Teritoriums und seiner
 }
 
 public static int isZoneWhite(){
-
-        boolean white = false; //Besitzer der Gruppe feststellen
-        //0 für neutrale Gruppe
-        //1 für weiße Gruppe
+        // Returns
+        // 0 für neutrale Gruppe
+        // 1 für weiße Gruppe
         //-1 für schwarze Gruppe
 
+        int temp = 1337;
         for(int i = 0; i < n; i++) {
                 for(int j = 0; j < n; j++) {
                         if(grenze[i][j]) { //Zu einem Feld der Grenze gehen
-                                white = brett[i][j].isWhite(); //Ersten Grenzstein als Farbe markieren
+                                if(brett[i][j].isWhite()) temp = 1; //Ersten Grenzstein als Farbe markieren
+                                if(!brett[i][j].isWhite()) temp = 0;
+                        }
+                        if(temp != 1337) break; //Abbruch da ein Stein gefunden wurde
+                }
+                if(temp != 1337) break;
+        }
+        boolean white = false;
+        if(temp == 1) white = true; //Besitzer der Gruppe feststellen
+        else if(temp == 0) white = false;
+
+        for(int i = 0; i < n; i++) {
+                for(int j = 0; j < n; j++) {
+                        if(grenze[i][j]) {
                                 if(brett[i][j].isWhite() != white) return 0;
                                 //Wenn keine einheitliche Grenze werte Zone als neutral
                         }
                 }
 
         }
+
         if(white) return 1; //Wenn mit weiß durchgelaufen
         else return -1; //Wenn mit schwarz durchgelaufen
 
