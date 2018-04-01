@@ -17,7 +17,7 @@ public static void main(String[] args)
         Board spiel = new Board(sc, n);
         System.out.println();
 
-        for(int i = 0; i < 15; i++)
+        for(int i = 0; i < 18; i++)
         {
                 spiel.move();
                 spiel.kick();
