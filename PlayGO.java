@@ -16,6 +16,7 @@ public static void main(String[] args)
         sc.nextLine();
         Board spiel = new Board(sc, n);
         System.out.println();
+        spiel.draw();
 
         for(int i = 0; i < 18; i++)
         {
