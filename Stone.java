@@ -1,3 +1,5 @@
+package planer;
+
 public class Stone {
 
 boolean white;

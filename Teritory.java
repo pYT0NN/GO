@@ -1,20 +1,19 @@
-import java.util.*;
-import java.lang.*;
-import java.io.*;
+package planer;
+
 public class Teritory {
 
-static int n;
+static int boardHeight;
 static Stone[][] brett; //Spielbrett
 static boolean[][] tGroup; //Gruppenmarkierung der Teritoriums Felder
 static boolean[][] used; //Bereits gezählte Felder
 static boolean[][] grenze; //Markierung der äußeren Grenze des Teritoriums
 
-public Teritory(int n, Stone[][] brett, boolean[][] used){
-        this.n = n;
+public Teritory(int boardHeight, Stone[][] brett, boolean[][] used){
+        this.boardHeight = boardHeight;
         this.brett = brett;
         this.used = used;
-        this.tGroup = new boolean[n][n];
-        this.grenze = new boolean[n][n];
+        this.tGroup = new boolean[boardHeight][boardHeight];
+        this.grenze = new boolean[boardHeight][boardHeight];
 }
 
 public static int[] pointsWB(){
@@ -25,8 +24,8 @@ public static int[] pointsWB(){
         int count = 0;
         int[] punkteWB = new int[2];
 
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
+        for(int i = 0; i < boardHeight; i++) {
+                for(int j = 0; j < boardHeight; j++) {
                         markZone(i, j); //Von aktuellem Feld ausgehend eine Gruppe von leeren Feldern finden
                         owner = isZoneWhite();
                         count = count();
@@ -57,7 +56,7 @@ public static void markZone(int i, int j){   //Gruppe des Teritoriums und seiner
                         if(brett[i-1][j] == null && !tGroup[i-1][j]) markZone(i-1, j);
                         else if(brett[i-1][j] != null) grenze[i-1][j] = true;
                 }
-                if(i < n-1) {   //nach unten
+                if(i < boardHeight -1) {   //nach unten
                         if(brett[i+1][j] == null && !tGroup[i+1][j]) markZone(i+1, j);
                         else if(brett[i+1][j] != null) grenze[i+1][j] = true;
                 }
@@ -65,7 +64,7 @@ public static void markZone(int i, int j){   //Gruppe des Teritoriums und seiner
                         if(brett[i][j-1] == null && !tGroup[i][j-1]) markZone(i, j-1);
                         else if(brett[i][j-1] != null) grenze[i][j-1] = true;
                 }
-                if(j < n-1) {   //nach rechts
+                if(j < boardHeight -1) {   //nach rechts
                         if(brett[i][j+1] != null && !tGroup[i][j+1]) markZone(i, j+1);
                         else if(brett[i][j+1] != null) grenze[i][j+1] = true;
                 }
@@ -79,11 +78,11 @@ public static int isZoneWhite(){
         //-1 für schwarze Gruppe
 
         int temp = 1337;
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
+        for(int i = 0; i < boardHeight; i++) {
+                for(int j = 0; j < boardHeight; j++) {
                         if(grenze[i][j]) { //Zu einem Feld der Grenze gehen
                                 if(brett[i][j].isWhite()) temp = 1; //Ersten Grenzstein als Farbe markieren
-                                if(!brett[i][j].isWhite()) temp = 0;
+                                else if(!brett[i][j].isWhite()) temp = 0;
                         }
                         if(temp != 1337) break; //Abbruch da ein Stein gefunden wurde
                 }
@@ -93,8 +92,8 @@ public static int isZoneWhite(){
         if(temp == 1) white = true; //Besitzer der Gruppe feststellen
         else if(temp == 0) white = false;
 
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
+        for(int i = 0; i < boardHeight; i++) {
+                for(int j = 0; j < boardHeight; j++) {
                         if(grenze[i][j]) {
                                 if(brett[i][j].isWhite() != white) return 0;
                                 //Wenn keine einheitliche Grenze werte Zone als neutral
@@ -109,16 +108,16 @@ public static int isZoneWhite(){
 }
 public static int count(){
         int count = 0;
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
+        for(int i = 0; i < boardHeight; i++) {
+                for(int j = 0; j < boardHeight; j++) {
                         if(tGroup[i][j]) count++;
                 }
         }
         return count;
 }
 public static void reset(){
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
+        for(int i = 0; i < boardHeight; i++) {
+                for(int j = 0; j < boardHeight; j++) {
                         tGroup[i][j] = false;
                 }
         }

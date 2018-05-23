@@ -1,143 +1,166 @@
-import java.util.*;
-import java.lang.*;
-import java.io.*;
-public class Kick {
+package planer;
 
-static int n;
-static Stone[][] brett;
-static int pointsW = 0;
-static int pointsB = 0;
+class Kick {
+
+    private int boardHeight;
+    private Stone[][] gameBoard;
+    private int pointsWhite = 0;
+    private int pointsBlack = 0;
 
 
-public Kick(int n, Stone[][] brett){
-        this.n = n;
-        this.brett = brett;
-}
-public static int[] andReturnPoints(){
+    Kick(int boardHeight, Stone[][] gameBoard) {
+        this.boardHeight = boardHeight;
+        this.gameBoard = gameBoard;
+    }
 
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
-                        findGroup(i, j);
-                        if(!lebtGroup())  {           //wenn die Gruppe nicht lebt
-                                realkick();           //kick der Gruppe
-                                resetGroup();         //reset der Gruppenauswahl
-                        }
-                        else resetGroup();    //ansonsten nur Reset der Gruppenauswahl
-                }
+    int[] andReturnPoints() {
+
+        for (int i = 0; i < boardHeight; i++) {
+            for (int j = 0; j < boardHeight; j++) {
+                findGroup(i, j);
+
+                if (!isGroupAlive()) {        //if group is not alive
+                    realKick();           //kick group
+                    resetGroup();        //reset the Group
+                } else resetGroup();    //else just reset the group
+            }
         }
-        int[] pointsWB = new int[2];
-        pointsWB[0] = pointsW;
-        pointsWB[1] = pointsB;
+        int[] pointsWhiteBlack = new int[2];
+        pointsWhiteBlack[0] = pointsWhite;
+        pointsWhiteBlack[1] = pointsBlack;
 
-        return pointsWB;
-}
+        return pointsWhiteBlack;
+    }
 
-public static void findGroup(int i, int j){   //Gruppe finden und jedem Stein die anzahl der Verbindungen zuweisen
+    private void findGroup(int zeile, int spalte) {
+        /* find and mark group and number of connections with other stones */
+        /* call itself recursively to find and mark the group */
 
-        if(brett[i][j] != null) {
-                findCon(i, j);   //Anzahl der gleiche, angrenzenden Steine zählen
-                brett[i][j].mark();   //jeden Stein als Teil Gruppe markieren
-                boolean steinFarbe = brett[i][j].isWhite();
+        if (gameBoard[zeile][spalte] != null) {
+            countConnection(zeile, spalte);   //count allied neighbor stones
+            gameBoard[zeile][spalte].mark();  //mark them as part of the group
+            boolean steinFarbe = gameBoard[zeile][spalte].isWhite();
 
-                //rekursiv anliegende Steine als Teil der Gruppe markieren
-                if(i != 0) {   //nach oben
-                        if(brett[i-1][j] != null && !brett[i-1][j].group && brett[i-1][j].isWhite() == steinFarbe) findGroup(i-1, j);
-                }
-                if(i < n-1) {   //nach unten
-                        if(brett[i+1][j] != null && !brett[i+1][j].group && brett[i+1][j].isWhite() == steinFarbe) findGroup(i+1, j);
-                }
-                if(j != 0) {   //nach links
-                        if(brett[i][j-1] != null && !brett[i][j-1].group && brett[i][j-1].isWhite() == steinFarbe) findGroup(i, j-1);
-                }
-                if(j < n-1) {   //nach rechts
-                        if(brett[i][j+1] != null && !brett[i][j+1].group && brett[i][j+1].isWhite() == steinFarbe) findGroup(i, j+1);
-                }
+            //up
+            try {
+                if (gameBoard[zeile - 1][spalte] != null && !gameBoard[zeile - 1][spalte].group &&
+                        gameBoard[zeile - 1][spalte].isWhite() == steinFarbe) findGroup(zeile - 1, spalte);
+            } catch (ArrayIndexOutOfBoundsException ignored) {
+            }
+
+            //down
+            try {
+                if (gameBoard[zeile + 1][spalte] != null && !gameBoard[zeile + 1][spalte].group &&
+                        gameBoard[zeile + 1][spalte].isWhite() == steinFarbe) findGroup(zeile + 1, spalte);
+            } catch (ArrayIndexOutOfBoundsException ignored) {
+            }
+
+            //left
+            try {   //nach links
+                if (gameBoard[zeile][spalte - 1] != null && !gameBoard[zeile][spalte - 1].group &&
+                        gameBoard[zeile][spalte - 1].isWhite() == steinFarbe) findGroup(zeile, spalte - 1);
+            }
+            catch(ArrayIndexOutOfBoundsException ignored){
+
+            }
+
+            //right
+            try {
+                if (gameBoard[zeile][spalte + 1] != null && !gameBoard[zeile][spalte + 1].group &&
+                        gameBoard[zeile][spalte + 1].isWhite() == steinFarbe) findGroup(zeile, spalte + 1);
+            }
+            catch(ArrayIndexOutOfBoundsException ignored){
+
+            }
         }
-}
+    }
 
-public static boolean lebtGroup(){
+    private boolean isGroupAlive() {
         int points = 0;
         int con = 0;
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
-                        if(brett[i][j] != null && brett[i][j].group) {
-                                freiSingle(i, j);
-                                points += brett[i][j].getFreiheit();
-                                con += brett[i][j].getCon();
-                        }
+        for (int i = 0; i < boardHeight; i++) {
+            for (int j = 0; j < boardHeight; j++) {
+                if (gameBoard[i][j] != null && gameBoard[i][j].group) {
+                    freiSingle(i, j);
+                    points += gameBoard[i][j].getFreiheit();
+                    con += gameBoard[i][j].getCon();
                 }
+            }
         }
         points -= con;           //Freiheiten der gesamten Gruppe abzüglich deren Verbindungen
 
-        if(points == 0) return false;
-        else return true;
-}
+        return points != 0;
+    }
 
-public static void realkick(){ //kickt alle Steine der aktuellen Gruppe
-        for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
-                        if(brett[i][j] != null && brett[i][j].group) {
-                                if(brett[i][j].isWhite()) pointsB++;
-                                else pointsW++;
-                                remove(i, j);
-                        }
+    private void realKick() { //kickt alle Steine der aktuellen Gruppe
+        for (int i = 0; i < boardHeight; i++) {
+            for (int j = 0; j < boardHeight; j++) {
+                if (gameBoard[i][j] != null && gameBoard[i][j].group) {
+                    if (gameBoard[i][j].isWhite()) pointsBlack++;
+                    else pointsWhite++;
+                    remove(i, j);
                 }
+            }
         }
-}
-public static void findCon(int i, int j){
-        boolean steinFarbe = brett[i][j].isWhite();
+    }
+
+    private void countConnection(int i, int j) {
+        boolean steinFarbe = gameBoard[i][j].isWhite();
         int con = 0;
 
-        if(i != 0) {         //Anzahl der Verbindungen zu anderen gleichen Steinen finden
-                if(brett[i-1][j] != null && brett[i-1][j].isWhite() == steinFarbe) con++;
+        if (i != 0) {         //Anzahl der Verbindungen zu anderen gleichen Steinen finden
+            if (gameBoard[i - 1][j] != null && gameBoard[i - 1][j].isWhite() == steinFarbe) con++;
         }
-        if(i < n-1) {
-                if(brett[i+1][j] != null && brett[i+1][j].isWhite() == steinFarbe) con++;
+        if (i < boardHeight - 1) {
+            if (gameBoard[i + 1][j] != null && gameBoard[i + 1][j].isWhite() == steinFarbe) con++;
         }
-        if(j != 0) {
-                if(brett[i][j-1] != null && brett[i][j-1].isWhite() == steinFarbe) con++;
+        if (j != 0) {
+            if (gameBoard[i][j - 1] != null && gameBoard[i][j - 1].isWhite() == steinFarbe) con++;
         }
-        if(j < n-1) {
-                if(brett[i][j+1] != null && brett[i][j+1].isWhite() == steinFarbe) con++;
+        if (j < boardHeight - 1) {
+            if (gameBoard[i][j + 1] != null && gameBoard[i][j + 1].isWhite() == steinFarbe) con++;
         }
-        brett[i][j].setCon(con);
-}
-public static void freiSingle(int i, int j) //subtrahiert Freiheiten für Kanten und anliegende gegn. Steine
-{
+        gameBoard[i][j].setCon(con);
+    }
+
+    private void freiSingle(int i, int j)
+//subtrahiert Freiheiten für Kanten und anliegende gegn. Steine
+    {
         int freiheiten = 4;
-        boolean steinFarbe = brett[i][j].isWhite();
+        boolean steinFarbe = gameBoard[i][j].isWhite();
 
-        if(i == 0 || i == n-1) freiheiten -= 1; //Abzug fuer Brettkante
-        if(j == 0 || j == n-1) freiheiten -= 1;
+        if (i == 0 || i == boardHeight - 1) freiheiten -= 1; //Abzug fuer Brettkante
+        if (j == 0 || j == boardHeight - 1) freiheiten -= 1;
 
-        if(i != 0) //nach oben
+        if (i != 0) //nach oben
         {
-                if(brett[i-1][j] != null && brett[i-1][j].isWhite() == !steinFarbe) freiheiten -= 1;
+            if (gameBoard[i - 1][j] != null && gameBoard[i - 1][j].isWhite() == !steinFarbe) freiheiten -= 1;
         }
-        if(i != n-1) //nach unten
+        if (i != boardHeight - 1) //nach unten
         {
-                if(brett[i+1][j] != null && brett[i+1][j].isWhite() == !steinFarbe) freiheiten -= 1;
+            if (gameBoard[i + 1][j] != null && gameBoard[i + 1][j].isWhite() == !steinFarbe) freiheiten -= 1;
         }
-        if(j != 0) //nach links
+        if (j != 0) //nach links
         {
-                if(brett[i][j-1] != null && brett[i][j-1].isWhite() == !steinFarbe) freiheiten -= 1;
+            if (gameBoard[i][j - 1] != null && gameBoard[i][j - 1].isWhite() == !steinFarbe) freiheiten -= 1;
         }
-        if(j != n-1) //nach rechts
+        if (j != boardHeight - 1) //nach rechts
         {
-                if(brett[i][j+1] != null && brett[i][j+1].isWhite() == !steinFarbe) freiheiten -= 1;
+            if (gameBoard[i][j + 1] != null && gameBoard[i][j + 1].isWhite() == !steinFarbe) freiheiten -= 1;
         }
-        brett[i][j].setFreiheit(freiheiten);
-}
+        gameBoard[i][j].setFreiheit(freiheiten);
+    }
 
-public static void resetGroup(){
-        for(int i = 0; i < n; i++) { //Reset der Gruppe
-                for(int j = 0; j < n; j++) {
-                        if(brett[i][j] != null)
-                                brett[i][j].unmark();
-                }
+    private void resetGroup() {
+        for (int i = 0; i < boardHeight; i++) { //Reset der Gruppe
+            for (int j = 0; j < boardHeight; j++) {
+                if (gameBoard[i][j] != null)
+                    gameBoard[i][j].unmark();
+            }
         }
-}
-public static void remove(int i, int j){
-        brett[i][j] = null;
-}
+    }
+
+    private void remove(int i, int j) {
+        gameBoard[i][j] = null;
+    }
 }
